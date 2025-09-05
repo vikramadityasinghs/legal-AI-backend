@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Document Analysis System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+        .hidden { display: none !important; }
+        .show { display: block !important; }
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-gavel text-blue-600 mr-3"></i>
+                Legal Document Analysis System
+            </h1>
+            <p class="text-gray-600 text-lg">Choose how you want to proceed with your legal document analysis</p>
+        </header>
+
+        <!-- Main Menu Page -->
+        <div id="mainMenu" class="max-w-4xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- Option 1: Upload New Documents -->
+                <div class="option-card card p-8 text-center" onclick="showUploadFlow()">
+                    <div class="text-6xl text-blue-600 mb-4">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Upload New Documents</h3>
+                    <p class="text-gray-600 mb-6">
+                        Upload your legal documents for AI-powered analysis. Our system will extract key information, 
+                        create timelines, and generate comprehensive summaries.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-check text-green-500 mr-2"></i>Document Analysis<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Timeline Extraction<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Summary Generation<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Excel & JSON Export
+                    </div>
+                </div>
+
+                <!-- Option 2: Select Existing Case -->
+                <div class="option-card card p-8 text-center" onclick="showExistingCases()">
+                    <div class="text-6xl text-green-600 mb-4">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Select Existing Case</h3>
+                    <p class="text-gray-600 mb-6">
+                        Access previously analyzed cases. View summaries, download reports, and 
+                        generate fresh Excel files from existing analysis data.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-check text-green-500 mr-2"></i>Instant Access<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Cached Results<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Fresh Excel Generation<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Summary Management
+                    </div>
+                </div>
+            </div>
+        </div>
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .timeline-item {
+            border-left: 2px solid #667eea;
+            padding-left: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-primary text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold">
+                    <i class="fas fa-balance-scale mr-2"></i>
+                    Legal Document Analysis System
+                </h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm opacity-75">AI-Powered Legal Analysis</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Home Page -->
+        <div id="homePage" class="show max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">
+                    Analyze Legal Documents with AI
+                </h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Upload case files, extract key information, and get comprehensive legal analysis with timeline and recommendations
+                </p>
+                <button onclick="showUploadPage()" class="btn-primary text-lg px-8 py-4">
+                    <i class="fas fa-upload mr-2"></i>
+                    Start Analysis
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="card p-6 text-center">
+                    <div class="text-4xl text-blue-500 mb-4">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Upload Documents</h3>
+                    <p class="text-gray-600">Support for PDF files and images (JPG, PNG)</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl text-green-500 mb-4">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI Analysis</h3>
+                    <p class="text-gray-600">Multi-agent AI pipeline for comprehensive analysis</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl text-purple-500 mb-4">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Export Results</h3>
+                    <p class="text-gray-600">Download reports in Excel, JSON, or PDF format</p>
+                </div>
+            </div>
+            
+            <!-- Cache Information Section -->
+            <div class="card p-6 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-bolt mr-2 text-yellow-500"></i>
+                        Smart Cache System
+                    </h3>
+                    <button onclick="loadCacheStats()" class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-refresh mr-1"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div id="cachedCasesCount" class="text-2xl font-bold text-blue-600">-</div>
+                        <div class="text-sm text-gray-600">Cached Cases</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="totalAccesses" class="text-2xl font-bold text-green-600">-</div>
+                        <div class="text-sm text-gray-600">Cache Hits</div>
+                    </div>
+                    <div class="text-center">
+                        <div id="cacheSize" class="text-2xl font-bold text-purple-600">-</div>
+                        <div class="text-sm text-gray-600">Cache Size</div>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600 bg-gray-50 p-3 rounded mb-4">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Our intelligent cache system recognizes previously analyzed cases and provides instant results, 
+                    saving time and ensuring consistency across similar document sets.
+                </div>
+                
+                <!-- Cached Cases Dropdown -->
+                <div class="mt-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="cachedCaseSelect" class="block text-sm font-medium text-gray-700">
+                            <i class="fas fa-history mr-2 text-blue-500"></i>
+                            Try a Cached Case
+                        </label>
+                        <span class="text-xs text-green-600 font-medium">Instant Results</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <select id="cachedCaseSelect" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">Select a cached case to test instant results...</option>
+                        </select>
+                        <button 
+                            onclick="loadCachedCase()" 
+                            id="loadCachedBtn" 
+                            class="btn-primary text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed" 
+                            disabled
+                        >
+                            <i class="fas fa-bolt mr-1"></i>
+                            Load
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-rocket mr-1"></i>
+                        Select a previously analyzed case to see instant cache results without uploading files
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Page -->
+        <div id="uploadPage" class="hidden max-w-2xl mx-auto">
+            <div class="card p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Upload Documents</h2>
+                    <button onclick="showHomePage()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Select Files (PDF, JPG, PNG)
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="handleFileSelect(event)">
+                        <label for="fileInput" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-lg text-gray-600">Click to upload or drag files here</p>
+                            <p class="text-sm text-gray-500 mt-2">Supports PDF, JPG, PNG files</p>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="fileList" class="mb-6"></div>
+
+                <button onclick="startAnalysis()" id="analyzeBtn" class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-play mr-2"></i>
+                    Start Analysis
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Page -->
+        <div id="analysisPage" class="hidden max-w-2xl mx-auto">
+            <div class="card p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Analysis in Progress</h2>
+                
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Progress</span>
+                        <span id="progressText" class="text-sm text-gray-600">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="analysisSteps" class="space-y-4">
+                    <div class="flex items-center text-gray-600">
+                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
+                            <i class="fas fa-spinner fa-spin text-xs"></i>
+                        </div>
+                        <span>Processing documents...</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <button onclick="cancelAnalysis()" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-stop mr-2"></i>
+                        Cancel Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="resultsPage" class="hidden max-w-6xl mx-auto">
+            <div id="resultsContainer">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="resultsTitle" class="text-3xl font-bold text-gray-800">Analysis Results</h2>
+                    <div class="flex space-x-4">
+                        <button onclick="showHomePage()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                            New Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Downloads Section -->
+                <div class="card p-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-download mr-2 text-purple-500"></i>
+                        Download Results
+                    </h3>
+                    <div id="downloadButtons" class="flex flex-wrap gap-4">
+                        <!-- Download buttons will be populated here -->
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Case Summary -->
+                    <div class="card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-file-alt mr-2 text-blue-500"></i>
+                            Case Summary
+                        </h3>
+                        <div id="caseSummary" class="text-gray-700 space-y-2">
+                            <!-- Summary content will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Key Events Timeline -->
+                    <div class="card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-clock mr-2 text-green-500"></i>
+                            Key Events Timeline
+                        </h3>
+                        <div id="timeline" class="space-y-4">
+                            <!-- Timeline items will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Legal Recommendations -->
+                    <div class="card p-6 lg:col-span-2">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+                            Legal Recommendations
+                        </h3>
+                        <div id="recommendations" class="space-y-4">
+                            <!-- Recommendations will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal hidden">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Processing...</h3>
+                <p class="text-gray-600">Please wait while we analyze your documents</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=1.1"></script>
+    <script>
+        // Debug script to ensure pages are initialized correctly
+        console.log('Debug: Page loaded');
+        window.addEventListener('load', function() {
+            console.log('Debug: Window loaded');
+            setTimeout(function() {
+                const homePage = document.getElementById('homePage');
+                const analysisPage = document.getElementById('analysisPage');
+                
+                console.log('Debug: Home page element:', homePage);
+                console.log('Debug: Home page classes:', homePage ? homePage.className : 'null');
+                console.log('Debug: Analysis page element:', analysisPage);
+                console.log('Debug: Analysis page classes:', analysisPage ? analysisPage.className : 'null');
+                
+                // Force show home page if needed
+                if (homePage && analysisPage) {
+                    homePage.classList.remove('hidden');
+                    analysisPage.classList.add('hidden');
+                    console.log('Debug: Forced home page to show');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

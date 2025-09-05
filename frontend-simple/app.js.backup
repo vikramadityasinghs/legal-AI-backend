@@ -1,0 +1,803 @@
+// API Configuration
+const API_BASE_URL = 'http://localhost:8000';
+
+// Global state
+let currentJobId = null;
+let selectedFiles = [];
+let analysisResults = null;
+
+// Utility functions
+function showElement(elementId) {
+    document.getElementById(elementId).classList.remove('hidden');
+}
+
+function hideElement(elementId) {
+    document.getElementById(elementId).classList.add('hidden');
+}
+
+function showPage(pageId) {
+    console.log('Showing page:', pageId);
+    // Hide all pages
+    ['homePage', 'uploadPage', 'analysisPage', 'resultsPage'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.add('hidden');
+            element.classList.remove('show');
+            console.log('Hid page:', id);
+        } else {
+            console.error('Page element not found:', id);
+        }
+    });
+    // Show target page
+    const targetElement = document.getElementById(pageId);
+    if (targetElement) {
+        targetElement.classList.remove('hidden');
+        targetElement.classList.add('show');
+        console.log('Showed page:', pageId);
+    } else {
+        console.error('Target page element not found:', pageId);
+    }
+}
+
+// Page navigation
+function showHomePage() {
+    showPage('homePage');
+    resetState();
+}
+
+function showUploadPage() {
+    showPage('uploadPage');
+}
+
+function showAnalysisPage() {
+    showPage('analysisPage');
+}
+
+function showResultsPage() {
+    showPage('resultsPage');
+}
+
+// Reset application state
+function resetState() {
+    currentJobId = null;
+    selectedFiles = [];
+    analysisResults = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileList').innerHTML = '';
+    document.getElementById('analyzeBtn').disabled = true;
+}
+
+// File handling
+function handleFileSelect(event) {
+    selectedFiles = Array.from(event.target.files);
+    displayFileList();
+    updateAnalyzeButton();
+}
+
+function displayFileList() {
+    const fileList = document.getElementById('fileList');
+    
+    if (selectedFiles.length === 0) {
+        fileList.innerHTML = '';
+        return;
+    }
+
+    fileList.innerHTML = `
+        <div class="space-y-2">
+            <h4 class="font-medium text-gray-700">Selected Files:</h4>
+            ${selectedFiles.map((file, index) => `
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-${getFileIcon(file.type)} mr-2 text-blue-500"></i>
+                        <span class="text-sm text-gray-700">${file.name}</span>
+                        <span class="text-xs text-gray-500 ml-2">(${formatFileSize(file.size)})</span>
+                    </div>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function getFileIcon(mimeType) {
+    if (mimeType.includes('pdf')) return 'pdf';
+    if (mimeType.includes('image')) return 'image';
+    return 'alt';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    displayFileList();
+    updateAnalyzeButton();
+}
+
+function updateAnalyzeButton() {
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    analyzeBtn.disabled = selectedFiles.length === 0;
+}
+
+// Analysis functions
+async function startAnalysis() {
+    if (selectedFiles.length === 0) {
+        alert('Please select files to analyze');
+        return;
+    }
+
+    try {
+        showElement('loadingModal');
+        
+        // Upload files
+        const formData = new FormData();
+        selectedFiles.forEach(file => {
+            formData.append('files', file);
+        });
+
+        const uploadResponse = await fetch(`${API_BASE_URL}/upload`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!uploadResponse.ok) {
+            throw new Error('Upload failed');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        currentJobId = uploadResult.job_id;
+
+        hideElement('loadingModal');
+
+        // Check if result was found in cache
+        if (uploadResult.cached) {
+            // Results are immediately available from cache
+            showAnalysisPage();
+            updateProgressDisplay({
+                status: 'completed',
+                progress: 100,
+                current_step: 'Analysis completed (from cache)',
+                completed_steps: ['document_processing', 'text_extraction', 'ai_analysis', 'generating_report'],
+                cache_hit: true
+            });
+            
+            // Load results immediately
+            setTimeout(async () => {
+                await loadResults();
+            }, 1000); // Small delay to show the cache hit message
+            
+            return;
+        }
+
+        showAnalysisPage();
+
+        // Start analysis for new files
+        const analyzeResponse = await fetch(`${API_BASE_URL}/analyze/${currentJobId}`, {
+            method: 'POST'
+        });
+
+        if (!analyzeResponse.ok) {
+            throw new Error('Analysis failed to start');
+        }
+
+        // Start polling for progress
+        pollAnalysisProgress();
+
+    } catch (error) {
+        hideElement('loadingModal');
+        alert('Error starting analysis: ' + error.message);
+        console.error('Analysis error:', error);
+    }
+}
+
+async function pollAnalysisProgress() {
+    const maxPolls = 120; // 10 minutes max (5 second intervals)
+    let pollCount = 0;
+
+    const poll = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/status/${currentJobId}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to get status');
+            }
+
+            const status = await response.json();
+            updateProgressDisplay(status);
+
+            if (status.status === 'completed') {
+                await loadResults();
+                return;
+            }
+
+            if (status.status === 'failed') {
+                throw new Error(status.error || 'Analysis failed');
+            }
+
+            pollCount++;
+            if (pollCount < maxPolls && status.status === 'processing') {
+                setTimeout(poll, 5000); // Poll every 5 seconds
+            } else if (pollCount >= maxPolls) {
+                throw new Error('Analysis timed out');
+            }
+
+        } catch (error) {
+            alert('Error during analysis: ' + error.message);
+            console.error('Polling error:', error);
+            showHomePage();
+        }
+    };
+
+    poll();
+}
+
+function updateProgressDisplay(status) {
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const analysisSteps = document.getElementById('analysisSteps');
+
+    // Update progress bar
+    const progress = status.progress || 0;
+    progressFill.style.width = `${progress}%`;
+    progressText.textContent = `${progress}%`;
+    
+    // Show cache hit message if applicable
+    if (status.cache_hit) {
+        progressText.textContent = `${progress}% (from cache)`;
+        progressFill.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)'; // Orange for cache
+    }
+
+    // Update steps
+    const steps = [
+        { key: 'document_processing', label: 'Processing documents...', icon: 'file-alt' },
+        { key: 'text_extraction', label: 'Extracting text...', icon: 'search' },
+        { key: 'ai_analysis', label: 'Running AI analysis...', icon: 'robot' },
+        { key: 'generating_report', label: 'Generating report...', icon: 'chart-bar' }
+    ];
+
+    // If cache hit, show all steps as completed with special styling
+    if (status.cache_hit) {
+        analysisSteps.innerHTML = `
+            <div class="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div class="flex items-center text-orange-700">
+                    <i class="fas fa-bolt mr-2"></i>
+                    <span class="font-medium">Results loaded from cache - instant analysis!</span>
+                </div>
+            </div>
+            ${steps.map(step => `
+                <div class="flex items-center text-green-600">
+                    <div class="w-6 h-6 rounded-full border-2 border-green-500 bg-green-500 mr-3 flex items-center justify-center">
+                        <i class="fas fa-check text-white text-xs"></i>
+                    </div>
+                    <span>${step.label}</span>
+                </div>
+            `).join('')}
+        `;
+    } else {
+        // Normal progress display
+        analysisSteps.innerHTML = steps.map(step => {
+            const isCompleted = status.completed_steps?.includes(step.key);
+            const isCurrent = status.current_step === step.key;
+            
+            return `
+                <div class="flex items-center ${isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-400'}">
+                    <div class="w-6 h-6 rounded-full border-2 ${isCompleted ? 'border-green-500 bg-green-500' : isCurrent ? 'border-blue-500' : 'border-gray-300'} mr-3 flex items-center justify-center">
+                        ${isCompleted ? '<i class="fas fa-check text-white text-xs"></i>' : 
+                          isCurrent ? '<i class="fas fa-spinner fa-spin text-xs"></i>' : 
+                          '<i class="fas fa-circle text-xs"></i>'}
+                    </div>
+                    <span>${step.label}</span>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+async function loadResults() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/results/${currentJobId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to load results');
+        }
+
+        analysisResults = await response.json();
+        
+        // Update downloads section with actual download links
+        updateDownloadsSection(analysisResults.downloads);
+        
+        // Call the main displayResults function that renders the summary and timeline
+        displayResults();
+        showResultsPage();
+
+    } catch (error) {
+        alert('Error loading results: ' + error.message);
+        console.error('Results error:', error);
+    }
+}
+
+function updateDownloadsSection(downloads) {
+    const downloadsDiv = document.getElementById('downloadButtons');
+    if (!downloadsDiv) return;
+    
+    if (!downloads) {
+        downloadsDiv.innerHTML = '<p class="text-gray-500">No downloads available</p>';
+        return;
+    }
+    
+    let downloadButtons = '';
+    
+    // Excel download button
+    if (downloads.excel_available && downloads.excel_url) {
+        downloadButtons += `
+            <button onclick="downloadFile('${downloads.excel_url}', 'excel')" 
+                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center">
+                <i class="fas fa-file-excel mr-2"></i>
+                Download Excel Report
+            </button>
+        `;
+    }
+    
+    // JSON download button
+    if (downloads.json_url) {
+        downloadButtons += `
+            <button onclick="downloadFile('${downloads.json_url}', 'json')" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center ml-2">
+                <i class="fas fa-file-code mr-2"></i>
+                Download JSON Data
+            </button>
+        `;
+    }
+    
+    downloadsDiv.innerHTML = downloadButtons || '<p class="text-gray-500">No downloads available</p>';
+}
+
+async function downloadFile(url, type) {
+    try {
+        const response = await fetch(`${API_BASE_URL}${url}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to download ${type} file`);
+        }
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        
+        // Get filename from response headers or create default
+        const contentDisposition = response.headers.get('content-disposition');
+        let filename = `legal_analysis_${currentJobId}.${type === 'excel' ? 'xlsx' : 'json'}`;
+        
+        if (contentDisposition) {
+            const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (matches && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+        
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        // Show success message
+        showNotification(`${type.toUpperCase()} file downloaded successfully!`, 'success');
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        showNotification(`Failed to download ${type} file: ${error.message}`, 'error');
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        document.body.removeChild(notification);
+    }, 3000);
+}
+
+// Display results function - renders summary, timeline, and recommendations
+function displayResults() {
+    if (!analysisResults) return;
+
+    // Display case summary from the new response structure
+    const caseSummaryDiv = document.getElementById('caseSummary');
+    const caseSummary = analysisResults.case_summary || '';
+    const documentSummaries = analysisResults.document_summaries || [];
+    
+    // Show case summary text
+    if (caseSummary) {
+        caseSummaryDiv.innerHTML = `
+            <div class="space-y-3">
+                <h3 class="text-lg font-semibold text-gray-800">Case Summary</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-gray-700 whitespace-pre-wrap">${caseSummary}</p>
+                </div>
+            </div>
+        `;
+    } else {
+        caseSummaryDiv.innerHTML = '<p class="text-gray-500">No case summary available</p>';
+    }
+    
+    // If we have document summaries, show them too
+    if (documentSummaries.length > 0) {
+        const docSummariesHtml = documentSummaries.map(summary => `
+            <div class="bg-white border rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-gray-800 mb-2">${summary.case_number || 'Document Summary'}</h4>
+                <div class="space-y-2 text-sm">
+                    <div><strong>Parties:</strong> ${summary.parties || 'N/A'}</div>
+                    <div><strong>Court:</strong> ${summary.court || 'N/A'}</div>
+                    <div><strong>Document Type:</strong> ${summary.document_type || 'N/A'}</div>
+                    <div><strong>Summary:</strong></div>
+                    <p class="bg-gray-50 p-3 rounded">${summary.summary || 'No summary available'}</p>
+                    ${summary.key_legal_issues?.length > 0 ? `
+                        <div><strong>Key Legal Issues:</strong></div>
+                        <ul class="list-disc list-inside ml-4">
+                            ${summary.key_legal_issues.map(issue => `<li>${issue}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
+        
+        caseSummaryDiv.innerHTML += `
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Document Summaries</h3>
+                ${docSummariesHtml}
+            </div>
+        `;
+    }
+
+    // Display timeline
+    const timeline = document.getElementById('timeline');
+    const events = analysisResults.events || [];
+    
+    timeline.innerHTML = events.length > 0 ? events.map(event => `
+        <div class="timeline-item border-l-4 border-blue-500 pl-4 pb-4 mb-4">
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <h4 class="font-medium text-gray-800">${event.event_type || 'Event'}</h4>
+                    <p class="text-sm text-gray-600 mt-1">${event.description || 'No description'}</p>
+                    ${event.parties_involved?.length > 0 ? 
+                        `<p class="text-xs text-gray-500 mt-1">Parties: ${event.parties_involved.join(', ')}</p>` : 
+                        ''}
+                    ${event.confidence ? 
+                        `<p class="text-xs text-blue-600 mt-1">Confidence: ${Math.round(event.confidence * 100)}%</p>` : 
+                        ''}
+                </div>
+                <span class="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full ml-4">
+                    ${event.date || 'No date'}
+                </span>
+            </div>
+        </div>
+    `).join('') : '<p class="text-gray-500 text-center py-8">No events extracted</p>';
+
+    // Display recommendations
+    const recommendationsDiv = document.getElementById('recommendations');
+    const recommendations = analysisResults.recommendations || {};
+    
+    if (recommendations.recommendations?.length > 0) {
+        recommendationsDiv.innerHTML = `
+            <div class="space-y-4">
+                ${recommendations.recommendations.map(rec => `
+                    <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="font-medium text-gray-800">${rec.category || 'Recommendation'}</h4>
+                            <span class="text-xs px-2 py-1 rounded-full ${
+                                rec.priority === 'High' ? 'bg-red-100 text-red-700' :
+                                rec.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-green-100 text-green-700'
+                            }">
+                                ${rec.priority || 'Normal'} Priority
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-2">${rec.action || 'No action specified'}</p>
+                        ${rec.legal_basis ? `<p class="text-sm text-gray-600 mb-2"><strong>Legal Basis:</strong> ${rec.legal_basis}</p>` : ''}
+                        ${rec.timeline ? `<p class="text-sm text-gray-600 mb-2"><strong>Timeline:</strong> ${rec.timeline}</p>` : ''}
+                        ${rec.rationale ? `<p class="text-sm text-gray-600"><strong>Rationale:</strong> ${rec.rationale}</p>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        recommendationsDiv.innerHTML = '<p class="text-gray-500 text-center py-8">No recommendations available</p>';
+    }
+    
+    // Show cache hit indicator if applicable
+    if (analysisResults.cached) {
+        const cacheIndicator = document.createElement('div');
+        cacheIndicator.className = 'bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4';
+        cacheIndicator.innerHTML = `
+            <div class="flex items-center text-orange-700">
+                <i class="fas fa-bolt mr-2"></i>
+                <span class="font-medium">Results loaded from cache - instant analysis!</span>
+            </div>
+        `;
+        document.getElementById('resultsContainer').insertBefore(cacheIndicator, document.getElementById('resultsContainer').firstChild);
+    }
+}
+
+function getPriorityClass(priority) {
+    switch (priority?.toLowerCase()) {
+        case 'high': return 'bg-red-100 text-red-800';
+        case 'medium': return 'bg-yellow-100 text-yellow-800';
+        case 'low': return 'bg-green-100 text-green-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+async function exportResults(format) {
+    if (!currentJobId) {
+        alert('No analysis results to export');
+        return;
+    }
+
+    try {
+        showElement('loadingModal');
+        
+        const response = await fetch(`${API_BASE_URL}/export/${currentJobId}?format=${format}`);
+        
+        if (!response.ok) {
+            throw new Error('Export failed');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        
+        const filename = `legal_analysis_${currentJobId}.${format === 'excel' ? 'xlsx' : format}`;
+        a.download = filename;
+        
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        hideElement('loadingModal');
+
+    } catch (error) {
+        hideElement('loadingModal');
+        alert('Error exporting results: ' + error.message);
+        console.error('Export error:', error);
+    }
+}
+
+async function cancelAnalysis() {
+    if (!currentJobId) return;
+
+    try {
+        await fetch(`${API_BASE_URL}/jobs/${currentJobId}`, {
+            method: 'DELETE'
+        });
+        
+        showHomePage();
+        
+    } catch (error) {
+        console.error('Error canceling analysis:', error);
+        showHomePage(); // Still go back even if delete fails
+    }
+}
+
+// Cache management functions
+async function loadCacheStats() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/cache/stats`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            const stats = data.cache_stats;
+            
+            document.getElementById('cachedCasesCount').textContent = stats.total_cached_cases;
+            document.getElementById('totalAccesses').textContent = stats.total_access_count;
+            document.getElementById('cacheSize').textContent = `${stats.cache_size_mb} MB`;
+        } else {
+            // If cache stats fail, show default values
+            document.getElementById('cachedCasesCount').textContent = '0';
+            document.getElementById('totalAccesses').textContent = '0';
+            document.getElementById('cacheSize').textContent = '0 MB';
+        }
+    } catch (error) {
+        console.error('Failed to load cache stats:', error);
+        // Show default values on error
+        document.getElementById('cachedCasesCount').textContent = '0';
+        document.getElementById('totalAccesses').textContent = '0';
+        document.getElementById('cacheSize').textContent = '0 MB';
+    }
+}
+
+// Cached case management functions
+async function loadCachedCasesList() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/cache/list`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            populateCachedCasesDropdown(data.recent_cases || []);
+        } else {
+            console.error('Failed to load cached cases list');
+        }
+    } catch (error) {
+        console.error('Error loading cached cases:', error);
+    }
+}
+
+function populateCachedCasesDropdown(cases) {
+    const select = document.getElementById('cachedCaseSelect');
+    const loadBtn = document.getElementById('loadCachedBtn');
+    
+    if (!select) return;
+    
+    // Clear existing options except the first one
+    select.innerHTML = '<option value="">Select a cached case to test instant results...</option>';
+    
+    // Add cached cases to dropdown
+    cases.forEach(caseData => {
+        const option = document.createElement('option');
+        option.value = caseData.case_id;
+        
+        // Use the first case name or fallback to case_id
+        const caseName = caseData.case_names && caseData.case_names.length > 0 
+            ? caseData.case_names[0] 
+            : caseData.case_id;
+            
+        // Format the display text
+        const cachedDate = new Date(caseData.cached_at).toLocaleDateString();
+        option.textContent = `${caseName} (cached ${cachedDate})`;
+        
+        select.appendChild(option);
+    });
+    
+    // Enable/disable load button based on selection
+    select.addEventListener('change', function() {
+        loadBtn.disabled = !this.value;
+    });
+    
+    console.log(`Populated dropdown with ${cases.length} cached cases`);
+}
+
+async function loadCachedCase() {
+    const select = document.getElementById('cachedCaseSelect');
+    const selectedCaseId = select.value;
+    
+    if (!selectedCaseId) {
+        alert('Please select a cached case first');
+        return;
+    }
+    
+    try {
+        showElement('loadingModal');
+        
+        // Fetch the actual cached case result from backend
+        const response = await fetch(`${API_BASE_URL}/cache/case/${selectedCaseId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to load cached case from backend');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.result) {
+            throw new Error('No cached result found');
+        }
+        
+        // Create a mock job for the cached result
+        const mockJobId = `cached_${selectedCaseId}_${Date.now()}`;
+        currentJobId = mockJobId;
+        
+        // Show analysis page with cache hit indication
+        showAnalysisPage();
+        hideElement('loadingModal');
+        
+        // Display immediate cache hit
+        updateProgressDisplay({
+            status: 'completed',
+            progress: 100,
+            current_step: 'Analysis completed (from cache)',
+            completed_steps: ['document_processing', 'text_extraction', 'ai_analysis', 'generating_report'],
+            cache_hit: true
+        });
+        
+        // Store the cached result in the expected format
+        analysisResults = {
+            job_id: data.job_id,
+            status: "completed",
+            cached: true,
+            case_summary: data.case_summary || "",
+            document_summaries: data.document_summaries || [],
+            events: data.events || [],
+            recommendations: data.recommendations || {},
+            extraction_stats: data.extraction_stats || {},
+            completed_at: data.completed_at || "",
+            downloads: data.downloads || {}
+        };
+        
+        // Update downloads section
+        updateDownloadsSection(analysisResults.downloads);
+        
+        // Show results after a short delay to demonstrate the cache hit
+        setTimeout(() => {
+            displayResults();
+            showResultsPage();
+        }, 1500);
+        
+        // Update cache stats to show the access
+        setTimeout(() => {
+            loadCacheStats();
+        }, 2000);
+        
+    } catch (error) {
+        hideElement('loadingModal');
+        alert('Error loading cached case: ' + error.message);
+        console.error('Cached case loading error:', error);
+    }
+}
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing app...');
+    showHomePage();
+    
+    // Load cache stats asynchronously without blocking UI
+    setTimeout(() => {
+        loadCacheStats();
+    }, 100);
+
+    // Load cached cases list for dropdown
+    loadCachedCasesList();
+});
+
+// Handle drag and drop
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.querySelector('[for="fileInput"]').parentElement;
+    
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('border-blue-400');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-blue-400');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-blue-400');
+        
+        const files = Array.from(e.dataTransfer.files);
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        const validFiles = files.filter(file => allowedTypes.includes(file.type));
+        
+        if (validFiles.length > 0) {
+            selectedFiles = validFiles;
+            displayFileList();
+            updateAnalyzeButton();
+        } else {
+            alert('Please select valid files (PDF, JPG, PNG)');
+        }
+    });
+});

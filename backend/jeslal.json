@@ -1,0 +1,353 @@
+{
+    "job_id": "eb224ef0-c203-4e04-9d5f-ec11bb7e4aa4",
+    "status": "completed",
+    "cached": false,
+    "case_summary": "Documents analyzed: 1\nDocument 1: Judgment - CRIMINAL APPEAL NO. 179 OF 2007\nTimeline events: 22",
+    "document_summaries": [
+        {
+            "case_number": "CRIMINAL APPEAL NO. 179 OF 2007",
+            "parties": "Sidhartha Vashisht @ Manu Sharma vs State (NCT of Delhi)",
+            "court": "Supreme Court of India, Criminal Appellate Jurisdiction",
+            "document_type": "Judgment",
+            "summary": "The Supreme Court of India is hearing statutory appeals filed under Section 2(a) of the Supreme Court (Enlargement of Criminal Appellate Jurisdiction) Act, 1970 and Section 379 of the Criminal Procedure Code against the final judgment and order dated 18/20.12.2006 passed by the High Court of Delhi. The High Court reversed the acquittal of Sidhartha Vashisht @ Manu Sharma by the Additional Sessions Judge, Delhi, and convicted him under Section 302, 201/120B IPC and Section 27 of the Arms Act, sentencing him to life imprisonment and fines. The case involves the shooting of Jessica Lal at a party in 1999.",
+            "key_legal_issues": [
+                "Reversal of acquittal",
+                "Conviction under IPC and Arms Act",
+                "Sentencing and fines"
+            ],
+            "confidence": 0.8
+        }
+    ],
+    "events": [
+        {
+            "date": "1999-04-30",
+            "event_type": "incident",
+            "description": "Jessica Lal was shot at Qutub Colonnade at 'Once upon a time' restaurant also called 'Tamarind Café' by Sidhartha Vashisht @ Manu Sharma.",
+            "parties_involved": [
+                "Jessica Lal",
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-04-30",
+            "event_type": "report",
+            "description": "DD Entry No. 41 A was recorded at Police Station Mehrauli disclosing a shooting incident at H-5/6 Qutub Colonnade.",
+            "parties_involved": [
+                "Police Station Mehrauli"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-04-30",
+            "event_type": "report",
+            "description": "FIR No. 287/99 was registered at the police station, Mehrauli.",
+            "parties_involved": [
+                "Police Station Mehrauli"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-04-30",
+            "event_type": "report",
+            "description": "Jessica Lal was declared brought dead at Apollo Hospital.",
+            "parties_involved": [
+                "Jessica Lal",
+                "Apollo Hospital"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-05-06",
+            "event_type": "surrender",
+            "description": "Sidhartha Vashisht @ Manu Sharma surrendered before Inspector Raman Lamba and was later arrested.",
+            "parties_involved": [
+                "Sidhartha Vashisht @ Manu Sharma",
+                "Inspector Raman Lamba"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-05-07",
+            "event_type": "hearing",
+            "description": "Police produced Sidhartha Vashisht @ Manu Sharma before the Metropolitan Magistrate and sought police remand for effecting recovery of the alleged weapon of offence.",
+            "parties_involved": [
+                "Police",
+                "Sidhartha Vashisht @ Manu Sharma",
+                "Metropolitan Magistrate"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-05-30",
+            "event_type": "arrest",
+            "description": "Vikas Yadav was arrested.",
+            "parties_involved": [
+                "Vikas Yadav"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "1999-08-03",
+            "event_type": "filing",
+            "description": "Charge sheet was filed against ten accused persons.",
+            "parties_involved": [
+                "Prosecution",
+                "Ten accused persons"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2000-11-23",
+            "event_type": "order",
+            "description": "Additional Sessions Judge framed charges against the accused persons.",
+            "parties_involved": [
+                "Additional Sessions Judge",
+                "Accused persons"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2001-03-13",
+            "event_type": "order",
+            "description": "High Court disposed of all the revision petitions filed by the accused persons by a common order.",
+            "parties_involved": [
+                "High Court",
+                "Accused persons"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2001-05-01",
+            "event_type": "trial",
+            "description": "Trial began against nine accused.",
+            "parties_involved": [
+                "Nine accused"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2001-12-12",
+            "event_type": "order",
+            "description": "Case registered against Malini Ramani, Beena Ramani and George Mailhot under the Punjab Excise Act was disposed of with a direction to pay a fine of Rs.200 each.",
+            "parties_involved": [
+                "Malini Ramani",
+                "Beena Ramani",
+                "George Mailhot"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2002-01-28",
+            "event_type": "order",
+            "description": "Sidhartha Vashisht @ Manu Sharma was released on interim bail for a period of six weeks by the order of the High Court dated 2002-01-25 with a direction to surrender after the expiry of the same.",
+            "parties_involved": [
+                "Sidhartha Vashisht @ Manu Sharma",
+                "High Court"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2002-03-11",
+            "event_type": "surrender",
+            "description": "Sidhartha Vashisht @ Manu Sharma surrendered in compliance with the conditions of interim bail.",
+            "parties_involved": [
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2002-03-20",
+            "event_type": "order",
+            "description": "Sidhartha Vashisht @ Manu Sharma was granted interim bail for a period of ten weeks.",
+            "parties_involved": [
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-02-21",
+            "event_type": "order",
+            "description": "Additional Sessions Judge acquitted all the nine accused including Sidhartha Vashisht @ Manu Sharma.",
+            "parties_involved": [
+                "Additional Sessions Judge",
+                "Nine accused"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-12-20",
+            "event_type": "order",
+            "description": "High Court of Delhi reversed the order of acquittal dated 2006-02-21 passed by the Additional Sessions Judge, Delhi, in Sessions Case No. 105 of 2001 and convicted Sidhartha Vashisht @ Manu Sharma under Section 302, 201/120B IPC and Section 27 of the Arms Act.",
+            "parties_involved": [
+                "High Court of Delhi",
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-12-20",
+            "event_type": "order",
+            "description": "High Court of Delhi sentenced Sidhartha Vashisht @ Manu Sharma to undergo imprisonment for life for the offence under Section 302 IPC together with a fine of Rs.50,000/- to be paid to the family of the victim and in default of payment of fine, to undergo further imprisonment for three years.",
+            "parties_involved": [
+                "High Court of Delhi",
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-12-20",
+            "event_type": "order",
+            "description": "High Court of Delhi sentenced Sidhartha Vashisht @ Manu Sharma to undergo imprisonment for four years for the offence under Section 27 of the Arms Act with a fine of Rs.2000 and in default to further undergo imprisonment for three months.",
+            "parties_involved": [
+                "High Court of Delhi",
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-12-20",
+            "event_type": "order",
+            "description": "High Court of Delhi sentenced Sidhartha Vashisht @ Manu Sharma to undergo imprisonment for four years for the offence under Section 201/120B IPC together with a fine of Rs. 2,000 and in default, to further undergo imprisonment for three months.",
+            "parties_involved": [
+                "High Court of Delhi",
+                "Sidhartha Vashisht @ Manu Sharma"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-12-20",
+            "event_type": "order",
+            "description": "High Court of Delhi sentenced Amardeep Singh Gill @ Tony Gill and Vikas Yadav to undergo rigorous imprisonment for four years and a fine of Rs.2000 each and, in default of payment of fine, to further undergo imprisonment for three months under Section 201/120B IPC.",
+            "parties_involved": [
+                "High Court of Delhi",
+                "Amardeep Singh Gill @ Tony Gill",
+                "Vikas Yadav"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        },
+        {
+            "date": "2006-12-20",
+            "event_type": "order",
+            "description": "High Court convicted and sentenced the appellants, as mentioned in paragraphs above.",
+            "parties_involved": [
+                "High Court",
+                "Appellants"
+            ],
+            "confidence": 1.0,
+            "document_source": "634073511434807500.pdf"
+        }
+    ],
+    "recommendations": {
+        "recommendations": [
+            {
+                "category": "Procedural",
+                "priority": "High",
+                "action": "File a Special Leave Petition (SLP) in the Supreme Court challenging the High Court's decision.",
+                "legal_basis": "Article 136 of the Constitution of India",
+                "timeline": "Within 90 days from the date of the High Court judgment",
+                "rationale": "To seek a review of the High Court's reversal of acquittal and to stay the execution of the sentence."
+            },
+            {
+                "category": "Procedural",
+                "priority": "High",
+                "action": "Ensure compliance with the payment of fines imposed by the High Court.",
+                "legal_basis": "Section 421 of the Criminal Procedure Code",
+                "timeline": "Immediate",
+                "rationale": "Non-compliance with the fine payment could lead to additional imprisonment, which must be avoided."
+            },
+            {
+                "category": "Strategic",
+                "priority": "Medium",
+                "action": "Gather and present any new evidence or witness testimonies that were not considered in the previous trials.",
+                "legal_basis": "Section 391 of the Criminal Procedure Code",
+                "timeline": "Ongoing",
+                "rationale": "To strengthen the defense by introducing new facts that could potentially alter the judgment."
+            },
+            {
+                "category": "Strategic",
+                "priority": "Medium",
+                "action": "Conduct thorough legal research on similar case precedents where the Supreme Court has overturned High Court decisions.",
+                "legal_basis": "Case law research",
+                "timeline": "Within the next 30 days",
+                "rationale": "To build a strong argument based on judicial precedents that support the appeal."
+            },
+            {
+                "category": "Long-term",
+                "priority": "Low",
+                "action": "Explore the possibility of filing a mercy petition if the Supreme Court upholds the High Court's decision.",
+                "legal_basis": "Article 72 of the Constitution of India",
+                "timeline": "Post-Supreme Court judgment",
+                "rationale": "As a last resort to seek clemency from the President of India."
+            },
+            {
+                "category": "Long-term",
+                "priority": "Low",
+                "action": "Develop a comprehensive risk mitigation plan to handle adverse outcomes, including media management and public relations strategies.",
+                "legal_basis": "N/A",
+                "timeline": "Ongoing",
+                "rationale": "To manage the reputational impact and prepare for various contingencies."
+            }
+        ],
+        "case_strength": {
+            "overall": "Moderate",
+            "strengths": [
+                "High Court's detailed reasoning",
+                "Strong circumstantial evidence"
+            ],
+            "weaknesses": [
+                "Initial acquittal by the Additional Sessions Judge",
+                "Potential gaps in witness testimonies"
+            ],
+            "score": 0.6
+        },
+        "legal_analysis": "The High Court's decision to reverse the acquittal is based on a thorough examination of the evidence and witness testimonies. The Supreme Court will consider whether there were any legal errors in the High Court's judgment and whether the evidence was sufficient to support the conviction. The defense should focus on highlighting any procedural lapses or inconsistencies in the prosecution's case while presenting new evidence or arguments that could create reasonable doubt.",
+        "next_steps": [
+            "File the SLP in the Supreme Court",
+            "Ensure payment of fines",
+            "Gather new evidence and witness testimonies",
+            "Conduct legal research on similar precedents",
+            "Prepare for potential adverse outcomes"
+        ]
+    },
+    "extraction_stats": {
+        "total_files": 1,
+        "success_count": 1,
+        "error_count": 0,
+        "files_processed": [
+            {
+                "filename": "634073511434807500.pdf",
+                "status": "success",
+                "text_length": 291303
+            }
+        ]
+    },
+    "completed_at": "2025-08-28T00:59:54.211506",
+    "downloads": {
+        "excel_available": false,
+        "excel_url": null,
+        "json_url": "/download/json/eb224ef0-c203-4e04-9d5f-ec11bb7e4aa4",
+        "summary_text": "Documents analyzed: 1\nDocument 1: Judgment - CRIMINAL APPEAL NO. 179 OF 2007\nTimeline events: 22"
+    }
+}

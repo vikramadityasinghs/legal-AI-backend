@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Document Analysis System - FIXED</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hidden { display: none !important; }
+        .show { display: block !important; }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-primary text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold">
+                    <i class="fas fa-balance-scale mr-2"></i>
+                    Legal Document Analysis System
+                </h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm opacity-75">AI-Powered Legal Analysis</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Status Display -->
+    <div class="container mx-auto px-6 py-4">
+        <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+            Page Status: <span id="pageStatus">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Home Page -->
+        <div id="homePage" class="show max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">
+                    Analyze Legal Documents with AI
+                </h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Upload case files, extract key information, and get comprehensive legal analysis with timeline and recommendations
+                </p>
+                <button onclick="showUploadPage()" class="btn-primary text-lg px-8 py-4">
+                    <i class="fas fa-upload mr-2"></i>
+                    Start Analysis
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="card p-6 text-center">
+                    <div class="text-4xl text-blue-500 mb-4">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Upload Documents</h3>
+                    <p class="text-gray-600">Support for PDF files and images (JPG, PNG)</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl text-green-500 mb-4">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI Analysis</h3>
+                    <p class="text-gray-600">Multi-agent AI pipeline for comprehensive analysis</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="text-4xl text-purple-500 mb-4">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Export Results</h3>
+                    <p class="text-gray-600">Download reports in Excel, JSON, or PDF format</p>
+                </div>
+            </div>
+            
+            <!-- Cache Information Section -->
+            <div class="card p-6 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-bolt mr-2 text-yellow-500"></i>
+                        Smart Cache System
+                    </h3>
+                    <span class="text-green-600 font-medium">✓ Active</span>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600">1</div>
+                        <div class="text-sm text-gray-600">Cached Cases</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">0</div>
+                        <div class="text-sm text-gray-600">Cache Hits</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">0.24</div>
+                        <div class="text-sm text-gray-600">Cache Size (MB)</div>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600">
+                    The system recognizes previously analyzed cases and provides instant results.
+                    Your documents are cross-referenced by case name, number, and content.
+                </p>
+            </div>
+        </div>
+
+        <!-- Upload Page -->
+        <div id="uploadPage" class="hidden max-w-2xl mx-auto">
+            <div class="card p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Upload Documents</h2>
+                    <button onclick="showHomePage()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <p>Upload page content goes here...</p>
+            </div>
+        </div>
+
+        <!-- Analysis Page -->
+        <div id="analysisPage" class="hidden max-w-2xl mx-auto">
+            <div class="card p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Analysis in Progress</h2>
+                <p>Analysis page content goes here...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple, robust page management
+        function showPage(pageId) {
+            console.log('Showing page:', pageId);
+            
+            // Hide all pages
+            const pages = ['homePage', 'uploadPage', 'analysisPage'];
+            pages.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.add('hidden');
+                    element.classList.remove('show');
+                }
+            });
+            
+            // Show target page
+            const targetElement = document.getElementById(pageId);
+            if (targetElement) {
+                targetElement.classList.remove('hidden');
+                targetElement.classList.add('show');
+                document.getElementById('pageStatus').textContent = `Showing ${pageId}`;
+            }
+        }
+
+        function showHomePage() {
+            showPage('homePage');
+        }
+
+        function showUploadPage() {
+            showPage('uploadPage');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            document.getElementById('pageStatus').textContent = 'DOM loaded, initializing...';
+            showHomePage();
+        });
+    </script>
+</body>
+</html>

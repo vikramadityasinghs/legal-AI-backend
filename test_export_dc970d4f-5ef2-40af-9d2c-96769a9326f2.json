@@ -1,0 +1,30 @@
+{
+  "export_info": {
+    "job_id": "dc970d4f-5ef2-40af-9d2c-96769a9326f2",
+    "export_date": "2025-08-15T11:55:47.998474",
+    "format": "json",
+    "version": "1.0"
+  },
+  "analysis_results": {
+    "job_id": "dc970d4f-5ef2-40af-9d2c-96769a9326f2",
+    "case_summary": "Case Numbers: Error\nParties: Processing failed\nDocuments analyzed: 1 (Error)\nKey legal issues: Processing error",
+    "document_summaries": [
+      "case_number='Error' parties='Processing failed' court='Unknown' document_type='Error' summary=\"Failed to process: 'AIAgentOrchestrator' object has no attribute '_async_llm_call'\" key_legal_issues=['Processing error'] confidence=0.0"
+    ],
+    "events": [],
+    "recommendations": "recommendations=[LegalRecommendation(category='General', priority='Medium', action='Review case documents and consult legal expert', legal_basis='General legal practice', timeline='Within 7 days', rationale=\"Analysis incomplete due to: 'AIAgentOrchestrator' object has no attribute '_async_llm_call'\")] case_strength=CaseStrength(overall='Moderate', strengths=['Case under review'], weaknesses=['Analysis incomplete'], score=0.5) legal_analysis='Legal analysis could not be completed. Please review manually.' next_steps=['Manual review required', 'Consult legal expert']",
+    "extraction_stats": {
+      "total_files": 1,
+      "success_count": 1,
+      "error_count": 0,
+      "files_processed": [
+        {
+          "filename": "Case Status_WP 203111 OF 2023_Manjunath v Ashwini.pdf",
+          "status": "success",
+          "text_length": 1875
+        }
+      ]
+    },
+    "completed_at": "2025-08-15T11:55:42.979710"
+  }
+}

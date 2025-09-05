@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+    <style>
+        .hidden { display: none; }
+        .visible { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    
+    <div id="homePage" class="visible">
+        <h2>HOME PAGE - This should be visible</h2>
+        <p>If you see this, the home page is working</p>
+    </div>
+    
+    <div id="analysisPage" class="hidden">
+        <h2>ANALYSIS PAGE - This should be hidden</h2>
+        <p>If you see this, there's a problem with the hidden class</p>
+    </div>
+    
+    <div id="test-status">
+        <p>JavaScript status: <span id="js-status">Not loaded</span></p>
+    </div>
+    
+    <script>
+        document.getElementById('js-status').textContent = 'Loaded successfully';
+        console.log('Test page loaded');
+        
+        // Test the hidden/show functionality
+        setTimeout(() => {
+            console.log('Testing page switching...');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('analysisPage').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('analysisPage').classList.add('hidden');
+                document.getElementById('homePage').classList.remove('hidden');
+                console.log('Page switching test completed');
+            }, 2000);
+        }, 2000);
+    </script>
+</body>
+</html>

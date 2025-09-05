@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Document Analysis System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+        .hidden { display: none !important; }
+        .show { display: block !important; }
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .case-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .case-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        /* Markdown Styles */
+        .markdown-content {
+            line-height: 1.7;
+            color: #374151;
+        }
+        .markdown-content h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .markdown-content h1:first-child {
+            margin-top: 0;
+        }
+        .markdown-content h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+            margin-top: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.25rem;
+        }
+        .markdown-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            margin-top: 1rem;
+        }
+        .markdown-content h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .markdown-content h5, .markdown-content h6 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .markdown-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .markdown-content ul, .markdown-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        .markdown-content li {
+            margin-bottom: 0.25rem;
+        }
+        .markdown-content strong {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .markdown-content em {
+            font-style: italic;
+            color: #4b5563;
+        }
+        .markdown-content code {
+            background-color: #f3f4f6;
+            color: #ef4444;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+        }
+        .markdown-content pre {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+        }
+        .markdown-content pre code {
+            background-color: transparent;
+            color: #374151;
+            padding: 0;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #1e40af;
+        }
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        .markdown-content th, .markdown-content td {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .markdown-content th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        .markdown-content hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-gavel text-blue-600 mr-3"></i>
+                Legal Document Analysis System
+            </h1>
+            <p class="text-gray-600 text-lg">Choose how you want to proceed with your legal document analysis</p>
+        </header>
+
+        <!-- Main Menu Page -->
+        <div id="mainMenu" class="max-w-4xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- Option 1: Upload New Documents -->
+                <div class="option-card card p-8 text-center" onclick="showUploadFlow()">
+                    <div class="text-6xl text-blue-600 mb-4">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Upload New Documents</h3>
+                    <p class="text-gray-600 mb-6">
+                        Upload your legal documents for AI-powered analysis. Our system will extract key information, 
+                        create timelines, and generate comprehensive summaries.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-check text-green-500 mr-2"></i>Document Analysis<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Timeline Extraction<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Summary Generation<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Excel & JSON Export
+                    </div>
+                </div>
+
+                <!-- Option 2: Select Existing Case -->
+                <div class="option-card card p-8 text-center" onclick="showExistingCases()">
+                    <div class="text-6xl text-green-600 mb-4">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Select Existing Case</h3>
+                    <p class="text-gray-600 mb-6">
+                        Access previously analyzed cases. View summaries, download reports, and 
+                        generate fresh Excel files from existing analysis data.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-check text-green-500 mr-2"></i>Instant Access<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Cached Results<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Fresh Excel Generation<br>
+                        <i class="fas fa-check text-green-500 mr-2"></i>Summary Management
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Flow Page -->
+        <div id="uploadFlow" class="hidden max-w-4xl mx-auto">
+            <div class="card p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-cloud-upload-alt text-blue-600 mr-2"></i>
+                        Upload New Documents
+                    </h2>
+                    <button onclick="goBackToMenu()" class="btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Menu
+                    </button>
+                </div>
+
+                <!-- File Upload Section -->
+                <div id="uploadSection" class="mb-8">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <div class="text-4xl text-gray-400 mb-4">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <p class="text-gray-600 mb-4">Drag and drop your legal documents here, or click to browse</p>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" class="hidden">
+                        <button onclick="document.getElementById('fileInput').click()" class="btn-primary">
+                            <i class="fas fa-plus mr-2"></i>Select Documents
+                        </button>
+                    </div>
+                    
+                    <!-- Selected Files Display -->
+                    <div id="selectedFiles" class="mt-4 hidden"></div>
+                    
+                    <!-- Upload Button -->
+                    <div id="uploadButton" class="mt-6 text-center hidden">
+                        <button onclick="startAnalysis()" class="btn-primary text-lg px-8 py-3">
+                            <i class="fas fa-play mr-2"></i>Start Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Section -->
+                <div id="progressSection" class="hidden mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Analysis Progress</h3>
+                    <div class="progress-bar mb-2">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="progressText" class="text-sm text-gray-600 mb-4">Initializing...</div>
+                    <div id="currentStep" class="text-sm text-blue-600"></div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultsSection" class="hidden">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Analysis Results</h3>
+                    
+                    <!-- Downloads -->
+                    <div id="downloadButtons" class="mb-6"></div>
+                    
+                    <!-- Case Summary -->
+                    <div id="caseSummary" class="mb-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Cases Page -->
+        <div id="existingCases" class="hidden max-w-6xl mx-auto">
+            <div class="card p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-folder-open text-green-600 mr-2"></i>
+                        Select Existing Case
+                    </h2>
+                    <button onclick="goBackToMenu()" class="btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Menu
+                    </button>
+                </div>
+
+                <!-- Cases List -->
+                <div id="casesList" class="grid gap-4">
+                    <!-- Cases will be loaded here -->
+                    <div class="text-center py-8">
+                        <div class="text-4xl text-gray-400 mb-4">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p class="text-gray-600">Loading available cases...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Case Results Page -->
+        <div id="caseResults" class="hidden max-w-6xl mx-auto">
+            <div class="card p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-file-alt text-blue-600 mr-2"></i>
+                        <span id="caseTitle">Case Analysis Results</span>
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button onclick="goBackToExistingCases()" class="btn-secondary">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Cases
+                        </button>
+                        <button onclick="goBackToMenu()" class="btn-secondary">
+                            <i class="fas fa-home mr-2"></i>Main Menu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Case Info -->
+                <div id="caseInfo" class="mb-6 p-4 bg-blue-50 rounded-lg">
+                    <div class="flex items-center text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span id="caseInfoText">Cached result - instantly available</span>
+                    </div>
+                </div>
+
+                <!-- Downloads -->
+                <div id="caseDownloads" class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-download text-green-600 mr-2"></i>
+                        Downloads
+                    </h3>
+                    <div id="downloadButtonsResults"></div>
+                </div>
+
+                <!-- Case Summary -->
+                <div id="caseSummaryResults">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-file-text text-blue-600 mr-2"></i>
+                        Case Summary
+                    </h3>
+                    <div id="summaryContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
